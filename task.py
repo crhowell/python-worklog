@@ -1,7 +1,11 @@
+from datetime import datetime
+import settings
+
+
 class Task:
 
     def prompt_date(self):
-        print('Date format is: dd-mm-yyyy')
+        print('Date format is: mm/dd/yyyy')
         return input('Task Date: ')
 
     def prompt_notes(self):

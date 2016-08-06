@@ -17,8 +17,8 @@ are stored in the root app directory, inside the 'logs' folder
 
 import os
 
-# Date Format
-DATE_FORMAT = '%m-%d-%Y'
+# Date Format, default: '2016 Jan 01'
+DATE_DISPLAY_FORMAT = '%Y %b %d'
 
 # Enter your Company's name
 COMPANY_NAME = 'Some Company'
