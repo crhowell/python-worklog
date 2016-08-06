@@ -7,7 +7,14 @@ class Log:
     FIELDNAMES = ['name', 'mins', 'notes', 'date']
 
     def find_by(self, key='', value=''):
-        result = [entry for entry in self.entries if entry[key] == value]
+        if key == 'search':
+            result = []
+        elif key == 'regex':
+            result = []
+        elif key == 'mins':
+            result = [entry for entry in self.entries if int(value['min']) <= int(entry[key]) <= int(value['max'])]
+        else:
+            result = [entry for entry in self.entries if entry[key] == value]
         return result
 
     def write_to_log(self, items=[]):

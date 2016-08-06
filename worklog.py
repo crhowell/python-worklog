@@ -4,8 +4,6 @@ from task import Task
 import settings
 import sys
 
-CHOICES = ['a', 'f', 'e', 'd', 'q']
-
 
 def clear_screen():
     print('\033c', end='')
@@ -27,10 +25,6 @@ def display_task(task):
         print('='*45)
 
 
-def validate_menu_choice(choice=''):
-    return True if choice[0] in CHOICES else False
-
-
 def add_task():
     task = Task()
     if task:
@@ -41,43 +35,50 @@ def add_task():
         print('Oops!')
 
 
-def prompt_find_menu():
-    OPTIONS = ['d', 't', 'e', 'p', 'q']
+def display_find_menu():
     print('\n Find By...\n')
+    print('{}\n{}\n{}\n{}\n{}\n'.format(
+        ' (D)ate',
+        ' (T)ime spent (range)',
+        ' (E)xact Search',
+        ' (P)attern',
+        ' (Q)uit menu'
+    ))
+    return ['d', 't', 'e', 'p', 'q']
+
+
+def prompt_find_choice(choice=''):
+    result = None
     while True:
-        print('{}\n{}\n{}\n{}\n{}\n'.format(
-            ' (D)ate',
-            ' (T)ime spent',
-            ' (E)xact Search',
-            ' (P)attern',
-            ' (Q)uit menu'
-        ))
+        if choice == 'd':
+            date = input('{}'.format(
+                '\n Enter a date to search for: Format mm/dd/yyyy: '))
+            result = ['date', date]
+            break
+        elif choice == 't':
+            min_time = input('\n Enter MINimum time (in minutes): ')
+            max_time = input(' \n Enter MAXimum time (in minutes): ')
+            result = ['mins', {'min': min_time, 'max': max_time}]
+            break
+        elif choice == 'e':
+            search = input('\n Enter EXACT search keyword: ')
+            result = ['search', search]
+        elif choice == 'q':
+            break
+
+    return result
+
+
+def prompt_menu_choice(choices=[]):
+    while True:
         choice = input(' Choice: ').lower()
-        result = None
         if choice:
-            if choice[0] in OPTIONS:
-                if choice == 'd':
-                    date = input('{}'.format(
-                        '\n Enter a date to search for: Format mm/dd/yyyy: '))
-                    result = ['date', date]
-
-                elif choice == 't':
-                    time = input('\n Enter time spent (in minutes): ')
-
-                elif choice == 'e':
-                    search = input('\n Enter EXACT search keyword: ')
-
-                elif choice == 'p':
-                    pattern = input('\n Enter a regex pattern to look for: ')
-
-                elif choice == 'q':
-                    break
+            if choice[0] in choices:
+                return choice[0]
             else:
-                print('Sorry, that was not an option. Try again.')
+                print(' Sorry, that is not a valid choice.')
         else:
-            print('You must enter something. Try again.')
-
-        return result
+            print(' You must enter a choice.')
 
 
 def get_prompt(choice, log):
@@ -86,13 +87,14 @@ def get_prompt(choice, log):
         log.write_to_log(item)
 
     elif choice == 'f':
-        choice = prompt_find_menu()
-        if choice is not None:
-            result = log.find_by(choice[0], choice[1])
+        choices = display_find_menu()
+        choice = prompt_menu_choice(choices)
+        search = prompt_find_choice(choice)
+        if search is not None:
+            result = log.find_by(search[0], search[1])
             for task in result:
                 display_task(task)
-            input('Enter to continue')
-        pass
+        input('Enter to continue')
     elif choice == 'e':
         pass
     elif choice == 'd':
@@ -102,11 +104,7 @@ def get_prompt(choice, log):
         sys.exit(0)
 
 
-def prompt_menu_choice():
-    return input(' Choice: ').lower()
-
-
-def print_menu():
+def display_main_menu():
     print(' What would you like to do? ')
     print('{}{}'.format(' ', '-'*45))
     print('{}\n{}\n{}\n{}\n{}\n'.format(
@@ -116,6 +114,7 @@ def print_menu():
         ' (D)elete Task',
         ' (Q)uit Application'
     ))
+    return ['a', 'f', 'e', 'd', 'q']
 
 
 def main():
@@ -123,15 +122,9 @@ def main():
     while True:
         log = Log()
         print("\n {}'s WorkLog\n".format(settings.COMPANY_NAME))
-        print_menu()
-        menu_choice = prompt_menu_choice()
-        if menu_choice:
-            if validate_menu_choice(menu_choice[0]):
-                get_prompt(menu_choice, log)
-            else:
-                continue
-        else:
-            continue
+        choices = display_main_menu()
+        menu_choice = prompt_menu_choice(choices)
+        get_prompt(menu_choice, log)
 
         clear_screen()
     return False
