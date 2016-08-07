@@ -5,12 +5,29 @@ from task import Task
 
 
 class Log:
+    """A Log is an instance representation of a CSV file.
+
+    The contents of the CSV log file are loaded into an instance
+    of a Log. Any changes to the log with actions such as
+    add, delete, and edit will cause the Log's state to be
+    saved to the file and the instance to be reloaded.
+    """
 
     def find_by_date(self, idx):
+        """Returns a list containing 1 task item.
+
+        Keyword arguments:
+        idx -- index choice from enumerated date list
+        """
         i = idx - 1
         return [self.tasks[i]]
 
     def search_by_term(self, term=''):
+        """Returns a list of tasks matching a term.
+
+        Keyword arguments:
+        term -- Search keyword term
+        """
         result = []
         if term:
             for task in self.tasks:
@@ -22,6 +39,13 @@ class Log:
         return result
 
     def find_task(self, key='', value=''):
+        """Returns result of given key action.
+
+        Keyword arguments:
+        key -- string of how value should be handled.
+        value -- search value of what we are looking for.
+
+        """
         result = []
         if key == 'search':
             result = self.search_by_term(value)
@@ -36,6 +60,11 @@ class Log:
         return result
 
     def write_to_log(self, items=[]):
+        """Appends to file, list of items.
+
+        Keyword arguments:
+        items -- a list of task items
+        """
         try:
             with open(self.file_path, 'a') as file:
                 writer = csv.DictWriter(file, fieldnames=Task.FIELDS)
@@ -48,6 +77,7 @@ class Log:
             return False
 
     def create_file(self):
+        """Creates a new CSV file on the local drive."""
         try:
             with open(self.file_path, 'w') as file:
                 writer = csv.DictWriter(file, fieldnames=Task.FIELDS)
@@ -61,6 +91,9 @@ class Log:
             return False
 
     def open_file(self):
+        """Attempts to open an existing CSV file,
+        If file does not exist, calls create_file method.
+        """
         entries = []
         try:
             with open(self.file_path, newline='') as file:
@@ -76,10 +109,12 @@ class Log:
             return entries
 
     def all_tasks(self):
+        """Returns a list of all tasks"""
         return self.tasks
 
     @staticmethod
     def get_file_path():
+        """Returns settings.py FILE_PATH, if exists."""
         if hasattr(settings, 'FILE_PATH'):
             return settings.FILE_PATH
         else:
