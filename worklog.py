@@ -9,6 +9,18 @@ def clear_screen():
     print('\033c', end='')
 
 
+def prompt_menu_choice(choices=[], prompt=' Choice: '):
+    while True:
+        choice = input(' {} '.format(prompt)).lower()
+        if choice:
+            if choice[0] in choices:
+                return choice[0]
+            else:
+                print(' Sorry, that is not a valid choice.')
+        else:
+            print(' You must enter a choice.')
+
+
 def convert_date(date, fmt='%m/%d/%Y'):
     return datetime.strptime(date, fmt).strftime(
         settings.DATE_DISPLAY_FORMAT)
@@ -25,10 +37,54 @@ def display_task(task):
         print('='*45)
 
 
-def add_task():
+def allowable_page_dir(num, size):
+    choices = {
+        'p': '(P)revious',
+        'n': '(N)ext',
+        'q': '(Q)uit'
+    }
+    if 0 < num < size - 1:
+        return choices
+    elif num == 0:
+        del choices['p']
+        return choices
+    elif num == size - 1:
+        del choices['n']
+        return choices
+    else:
+        del choices['p']
+        del choices['q']
+        return choices
+
+
+def display_task_count(curr, count):
+    print('\n Task {} of {}\n'.format(curr, count))
+
+
+def display_paginated(tasks=[]):
+    if tasks:
+        i = 0
+        while True:
+            page_dir = allowable_page_dir(i, len(tasks))
+            choices = [key for key in page_dir]
+            display_task_count(i + 1, len(tasks))
+            display_task(tasks[i])
+            prompt = ' | '.join([page_dir[key] for key in choices])
+            choice = prompt_menu_choice(choices, ' [{}]: '.format(prompt))
+            if choice == 'p':
+                i -= 1
+            elif choice == 'n':
+                i += 1
+                pass
+            elif choice == 'q':
+                break
+    else:
+        print('There are no tasks to show.')
+
+
+def create_task():
     task = Task()
     if task:
-        print(task)
         item = [{'name': task.name, 'mins': task.mins, 'notes': task.notes, 'date': task.date}]
         return item
     else:
@@ -69,21 +125,9 @@ def prompt_find_choice(choice=''):
     return result
 
 
-def prompt_menu_choice(choices=[]):
-    while True:
-        choice = input(' Choice: ').lower()
-        if choice:
-            if choice[0] in choices:
-                return choice[0]
-            else:
-                print(' Sorry, that is not a valid choice.')
-        else:
-            print(' You must enter a choice.')
-
-
 def get_prompt(choice, log):
     if choice == 'a':
-        item = add_task()
+        item = create_task()
         log.write_to_log(item)
 
     elif choice == 'f':
@@ -92,15 +136,17 @@ def get_prompt(choice, log):
         search = prompt_find_choice(choice)
         if search is not None:
             result = log.find_by(search[0], search[1])
-            for task in result:
-                display_task(task)
-        input('Enter to continue')
+            display_paginated(result)
     elif choice == 'e':
         pass
     elif choice == 'd':
         pass
     elif choice == 'q':
-        print('Exiting...')
+        clear_screen()
+        print('\n Exiting...')
+        print("\n Thanks for using {}'s Worklog".format(
+            settings.COMPANY_NAME
+        ))
         sys.exit(0)
 
 
