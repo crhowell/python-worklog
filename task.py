@@ -69,9 +69,9 @@ class Task:
         return True
 
     @staticmethod
-    def valid_mins(mins):
+    def valid_num(num):
         try:
-            val = int(mins)
+            val = int(num)
         except ValueError:
             print(' Sorry, it needs to be a number.')
             return False

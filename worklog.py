@@ -26,6 +26,19 @@ def convert_date(date, fmt='%m/%d/%Y'):
         settings.DATE_DISPLAY_FORMAT)
 
 
+def display_by_date(tasks):
+    print(' Tasks by Date')
+    print('{}{}'.format(' ', '-'*45))
+    for i, task in enumerate(tasks):
+        print(' {} {} - {}'.format(
+            i+1,
+            task.task_date(),
+            task.task_name()
+        ))
+
+    return [str(i+1) for i in range(len(tasks))]
+
+
 def display_task(task):
     print('=' * 45)
     print(' Task Name: {}\n Minutes Spent: {}\n Notes: {}\n Date: {}'.format(
@@ -107,19 +120,21 @@ def display_find_menu():
     return ['d', 't', 'e', 'p', 'q']
 
 
-def prompt_find_choice(choice=''):
+def prompt_find_choice(choice='', log=None):
     result = None
     while True:
         if choice == 'd':
-            date = input('{}'.format(
-                '\n Enter a date to search for: Format mm/dd/yyyy: '))
-            result = ['date', date]
+            choices = display_by_date(log.all_tasks())
+            print(' Choose a date by entering the number(left) of the date.')
+            choice = prompt_menu_choice(choices)
+            if Task.valid_num(choice):
+                result = ['date', int(choice)]
             break
         elif choice == 't':
             min_time = input('\n Enter MINimum time (in minutes): ')
-            if Task.valid_mins(min_time):
+            if Task.valid_num(min_time):
                 max_time = input(' \n Enter MAXimum time (in minutes): ')
-                if Task.valid_mins(max_time):
+                if Task.valid_num(max_time):
                     result = ['mins', {'min': int(min_time),
                                        'max': int(max_time)}]
                     break
@@ -131,6 +146,7 @@ def prompt_find_choice(choice=''):
         elif choice == 'e':
             search = input('\n Enter EXACT search keyword: ')
             result = ['search', search]
+            break
         elif choice == 'q':
             break
 
@@ -145,7 +161,7 @@ def get_prompt(choice, log):
     elif choice == 'f':
         choices = display_find_menu()
         choice = prompt_menu_choice(choices)
-        search = prompt_find_choice(choice)
+        search = prompt_find_choice(choice, log)
         if search is not None:
             result = log.find_task(search[0], search[1])
             display_paginated(result)
