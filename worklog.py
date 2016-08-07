@@ -6,10 +6,18 @@ import sys
 
 
 def clear_screen():
+    """Clears the terminal screen"""
     print('\033c', end='')
 
 
 def prompt_menu_choice(choices=[], prompt=' Choice: '):
+    """Prompts and validates a choice,
+    based-on list of valid choices.
+
+    Keyword arguments:
+    choices -- list of valid choices
+    prompt -- prompt to be displayed
+    """
     while True:
         choice = input(' {} '.format(prompt)).lower()
         if choice:
@@ -22,11 +30,22 @@ def prompt_menu_choice(choices=[], prompt=' Choice: '):
 
 
 def convert_date(date, fmt='%m/%d/%Y'):
+    """Converts a date to settings DATE_DISPLAY_FORMAT
+
+    Keyword arguments:
+    date -- user input date
+    fmt -- format of input date
+    """
     return datetime.strptime(date, fmt).strftime(
         settings.DATE_DISPLAY_FORMAT)
 
 
 def display_by_date(tasks):
+    """Display to the terminal all tasks by date, enumerated
+
+    Keyword arguments:
+    tasks -- a list of Task objects
+    """
     print(' Tasks by Date')
     print('{}{}'.format(' ', '-'*45))
     for i, task in enumerate(tasks):
@@ -40,6 +59,11 @@ def display_by_date(tasks):
 
 
 def display_task(task):
+    """Display to the terminal a given task.
+
+    Keyword arguments:
+    task -- a Task object
+    """
     print('=' * 45)
     print(' Task Name: {}\n Minutes Spent: {}\n Notes: {}\n Date: {}'.format(
         task.task_name(),
@@ -51,6 +75,12 @@ def display_task(task):
 
 
 def allowable_page_dir(num, size):
+    """Returns list of allowable pagination directions.
+
+    Keyword arguments:
+    num -- Current task number
+    size -- Size of the list of tasks
+    """
     choices = {
         'p': '(P)revious',
         'n': '(N)ext',
@@ -69,10 +99,23 @@ def allowable_page_dir(num, size):
 
 
 def display_task_count(curr, count):
+    """Displays to terminal
+    task number and total number of tasks.
+
+    Keyword arugments:
+    curr -- current number
+    count -- count of tasks
+    """
     print('\n Task {} of {}\n'.format(curr, count))
 
 
 def display_paginated(tasks=[]):
+    """Displays a task one-by-one,
+    using next, previous, quit options to cycle.
+
+    Keyword arguments:
+    tasks -- a list of tasks display paginated
+    """
     if tasks:
         i = 0
         while True:
@@ -94,20 +137,30 @@ def display_paginated(tasks=[]):
 
 
 def edit_task(task=None):
+    """Modify the selected task.
+
+    Keyword arguments:
+    task -- a Task object
+    """
     if task is not None:
         task.update_all()
 
 
 def create_task():
+    """Creates Task and returns as dict to write to file."""
     task = Task()
     if task:
-        item = [{'name': task.name, 'mins': task.mins, 'notes': task.notes, 'date': task.date}]
+        item = [{'name': task.name,
+                 'mins': task.mins,
+                 'notes': task.notes,
+                 'date': task.date}]
         return item
     else:
         print('Oops!')
 
 
 def display_find_menu():
+    """Display to terminal, the Find sub-menu"""
     print('\n Find By...')
     print('{}{}'.format(' ', '-'*45))
     print('{}\n{}\n{}\n{}\n{}\n'.format(
@@ -121,6 +174,12 @@ def display_find_menu():
 
 
 def prompt_find_choice(choice='', log=None):
+    """Prompt user for input,
+    based on choice from Find sub-menu.
+
+    Keyword arguments:
+    choice -- a string input choice
+    """
     result = None
     while True:
         if choice == 'd':
@@ -154,6 +213,13 @@ def prompt_find_choice(choice='', log=None):
 
 
 def get_prompt(choice, log):
+    """Prompts user for input,
+    based-on choice given from Main menu selection.
+
+    Keyword arguments:
+    choice -- input choice for main menu
+    log -- a Log object
+    """
     if choice == 'a':
         item = create_task()
         log.write_to_log(item)
@@ -182,6 +248,7 @@ def get_prompt(choice, log):
 
 
 def display_main_menu():
+    """Displays to terminal the Main Menu selections."""
     print(' What would you like to do? ')
     print('{}{}'.format(' ', '-'*45))
     print('{}\n{}\n{}\n{}\n{}\n'.format(
@@ -195,6 +262,9 @@ def display_main_menu():
 
 
 def main():
+    """Runs main program loop,
+    prompts for main menu input.
+    """
     clear_screen()
     while True:
         log = Log()
