@@ -20,7 +20,7 @@ class Task:
 
     def prompt_name(self):
         while True:
-            name = input('Task Name: ')
+            name = input(' Task Name: ')
             if self.valid_name(name):
                 return name
             else:
@@ -40,7 +40,7 @@ class Task:
         try:
             val = int(mins)
         except ValueError:
-            print('Sorry, it needs to be a number.')
+            print(' Sorry, it needs to be a number.')
             return False
         return True
 
@@ -50,7 +50,7 @@ class Task:
 
     @staticmethod
     def prompt_notes():
-        return input('Additional Notes: ')
+        return input(' Additional Notes: ')
 
     def __init__(self, **kwargs):
         self.name = self.prompt_name()

@@ -47,9 +47,8 @@ def allowable_page_dir(num, size):
         return choices
     elif num == 0:
         del choices['p']
-        return choices
-    elif num == size - 1:
-        del choices['n']
+        if num == size-1:
+            del choices['n']
         return choices
     else:
         del choices['p']
@@ -147,6 +146,7 @@ def get_prompt(choice, log):
         print("\n Thanks for using {}'s Worklog".format(
             settings.COMPANY_NAME
         ))
+        print(' Have a great day!')
         sys.exit(0)
 
 

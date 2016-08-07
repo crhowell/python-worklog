@@ -26,7 +26,7 @@ class Log:
             return True
 
         except ValueError:
-            print('Could add items to file.')
+            print(' Could add items to file.')
             return False
 
     def create_file(self):
@@ -39,7 +39,7 @@ class Log:
                         writer.writerow(entry)
             return True
         except ValueError:
-            print("Error: Could not create file.")
+            print(' Error: Could not create file.')
             return False
 
     def open_file(self):
@@ -50,7 +50,7 @@ class Log:
                 for entry in logreader:
                     entries.append(entry)
         except FileNotFoundError:
-            print('Could not find existing log file, creating new log.')
+            print(' Could not find existing log file, creating new log.')
             self.create_file()
 
         finally:
