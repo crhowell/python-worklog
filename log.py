@@ -6,15 +6,15 @@ from task import Task
 
 class Log:
 
-    def find_by(self, key='', value=''):
+    def find_task(self, key='', value=''):
+        result = []
         if key == 'search':
             result = []
         elif key == 'regex':
             result = []
         elif key == 'mins':
-            result = [entry for entry in self.entries if int(value['min']) <= int(entry[key]) <= int(value['max'])]
-        else:
-            result = [entry for entry in self.entries if entry[key] == value]
+            result = [task for task in self.tasks
+                      if value['min'] <= task.minutes() <= value['max']]
         return result
 
     def write_to_log(self, items=[]):
@@ -48,7 +48,8 @@ class Log:
             with open(self.file_path, newline='') as file:
                 logreader = csv.DictReader(file)
                 for entry in logreader:
-                    entries.append(entry)
+                    task = Task(**entry)
+                    entries.append(task)
         except FileNotFoundError:
             print(' Could not find existing log file, creating new log.')
             self.create_file()
@@ -65,4 +66,4 @@ class Log:
 
     def __init__(self):
         self.file_path = self.get_file_path()
-        self.entries = self.open_file()
+        self.tasks = self.open_file()

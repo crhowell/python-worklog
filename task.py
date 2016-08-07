@@ -26,6 +26,39 @@ class Task:
             else:
                 print(' ** Task Name cannot be empty. ** ')
 
+    def task_date(self):
+        return self.date
+
+    def task_notes(self):
+        return self.notes
+
+    def task_name(self):
+        return self.name
+
+    def minutes(self):
+        return self.mins
+
+    def set_notes(self):
+        self.notes = self.prompt_notes()
+
+    def set_date(self):
+        new_date = input(' Task Date[{}]: '.format(self.date)) or self.date
+        self.date = new_date
+
+    def set_mins(self):
+        new_mins = input(' Time spent[{}]: '.format(self.mins)) or self.mins
+        self.mins = new_mins
+
+    def set_name(self):
+        new_name = input(' Task Name[{}]: '.format(self.name)) or self.name
+        self.name = new_name
+
+    def update_all(self):
+        self.set_name()
+        self.set_mins()
+        self.set_notes()
+        self.set_date()
+
     @staticmethod
     def valid_date(date):
         try:
@@ -53,7 +86,11 @@ class Task:
         return input(' Additional Notes: ')
 
     def __init__(self, **kwargs):
-        self.name = self.prompt_name()
-        self.mins = self.prompt_mins()
-        self.notes = self.prompt_notes()
-        self.date = self.prompt_date()
+        self.name = (self.prompt_name()
+                     if 'name' not in kwargs else kwargs['name'])
+        self.mins = (self.prompt_mins()
+                     if 'mins' not in kwargs else int(kwargs['mins']))
+        self.notes = (self.prompt_notes()
+                      if 'notes' not in kwargs else kwargs['notes'])
+        self.date = (self.prompt_date()
+                     if 'date' not in kwargs else kwargs['date'])

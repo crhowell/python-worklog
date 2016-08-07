@@ -16,9 +16,9 @@ def prompt_menu_choice(choices=[], prompt=' Choice: '):
             if choice[0] in choices:
                 return choice[0]
             else:
-                print(' Sorry, that is not a valid choice.')
+                print('\n Try again, that was not a valid choice.')
         else:
-            print(' You must enter a choice.')
+            print('\n Try again, you must enter a choice.')
 
 
 def convert_date(date, fmt='%m/%d/%Y'):
@@ -27,14 +27,14 @@ def convert_date(date, fmt='%m/%d/%Y'):
 
 
 def display_task(task):
-        print('='*45)
-        print(' Task Name: {}\n Minutes Spent: {}\n Notes: {}\n Date: {}'.format(
-            task['name'],
-            task['mins'],
-            task['notes'],
-            convert_date(task['date'])
-        ))
-        print('='*45)
+    print('=' * 45)
+    print(' Task Name: {}\n Minutes Spent: {}\n Notes: {}\n Date: {}'.format(
+        task.task_name(),
+        task.minutes(),
+        task.task_notes(),
+        convert_date(task.task_date())
+    ))
+    print('=' * 45)
 
 
 def allowable_page_dir(num, size):
@@ -51,8 +51,7 @@ def allowable_page_dir(num, size):
             del choices['n']
         return choices
     else:
-        del choices['p']
-        del choices['q']
+        del choices['n']
         return choices
 
 
@@ -69,7 +68,7 @@ def display_paginated(tasks=[]):
             display_task_count(i + 1, len(tasks))
             display_task(tasks[i])
             prompt = ' | '.join([page_dir[key] for key in choices])
-            choice = prompt_menu_choice(choices, ' [{}]: '.format(prompt))
+            choice = prompt_menu_choice(choices, '[{}]: '.format(prompt))
             if choice == 'p':
                 i -= 1
             elif choice == 'n':
@@ -79,6 +78,11 @@ def display_paginated(tasks=[]):
                 break
     else:
         print('There are no tasks to show.')
+
+
+def edit_task(task=None):
+    if task is not None:
+        task.update_all()
 
 
 def create_task():
@@ -91,7 +95,8 @@ def create_task():
 
 
 def display_find_menu():
-    print('\n Find By...\n')
+    print('\n Find By...')
+    print('{}{}'.format(' ', '-'*45))
     print('{}\n{}\n{}\n{}\n{}\n'.format(
         ' (D)ate',
         ' (T)ime spent (range)',
@@ -112,9 +117,17 @@ def prompt_find_choice(choice=''):
             break
         elif choice == 't':
             min_time = input('\n Enter MINimum time (in minutes): ')
-            max_time = input(' \n Enter MAXimum time (in minutes): ')
-            result = ['mins', {'min': min_time, 'max': max_time}]
-            break
+            if Task.valid_mins(min_time):
+                max_time = input(' \n Enter MAXimum time (in minutes): ')
+                if Task.valid_mins(max_time):
+                    result = ['mins', {'min': int(min_time),
+                                       'max': int(max_time)}]
+                    break
+                else:
+                    print('\n ** Please enter a valid MAX time.')
+            else:
+                print('\n ** Please enter a valid MIN time.')
+
         elif choice == 'e':
             search = input('\n Enter EXACT search keyword: ')
             result = ['search', search]
@@ -134,12 +147,14 @@ def get_prompt(choice, log):
         choice = prompt_menu_choice(choices)
         search = prompt_find_choice(choice)
         if search is not None:
-            result = log.find_by(search[0], search[1])
+            result = log.find_task(search[0], search[1])
             display_paginated(result)
     elif choice == 'e':
-        pass
+        print(' Task updated.')
+        input(' Enter to continue...')
     elif choice == 'd':
-        pass
+        print(' Task Deleted.')
+        input(' Enter to continue...')
     elif choice == 'q':
         clear_screen()
         print('\n Exiting...')
