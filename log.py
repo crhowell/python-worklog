@@ -1,10 +1,10 @@
 import csv
 from datetime import datetime
 import settings
+from task import Task
 
 
 class Log:
-    FIELDNAMES = ['name', 'mins', 'notes', 'date']
 
     def find_by(self, key='', value=''):
         if key == 'search':
@@ -20,7 +20,7 @@ class Log:
     def write_to_log(self, items=[]):
         try:
             with open(self.file_path, 'a') as file:
-                writer = csv.DictWriter(file, fieldnames=Log.FIELDNAMES)
+                writer = csv.DictWriter(file, fieldnames=Task.FIELDS)
                 for item in items:
                     writer.writerow(item)
             return True
@@ -32,7 +32,7 @@ class Log:
     def create_file(self):
         try:
             with open(self.file_path, 'w') as file:
-                writer = csv.DictWriter(file, fieldnames=Log.FIELDNAMES)
+                writer = csv.DictWriter(file, fieldnames=Task.FIELDS)
                 writer.writeheader()
                 if self.entries:
                     for entry in self.entries:
