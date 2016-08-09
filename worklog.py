@@ -87,7 +87,7 @@ class WorkLog:
                     i += 1
                 elif choice == 'e':
                     self.edit_task(indices[i])
-                    input('Task Updated, Press ENTER to continue.')
+                    self.prompt_action_status('Task updated')
                     self.log.rewrite_the_log(self.tasks)
                     break
                 elif choice == 'd':
@@ -96,9 +96,9 @@ class WorkLog:
                     if option_choice == 'y':
                         self.delete_task(indices[i])
                         self.log.rewrite_the_log(self.tasks)
-                        input('Task Deleted, Press ENTER to continue.')
+                        self.prompt_action_status('Task Deleted')
                     else:
-                        input('Task was NOT deleted, Press ENTER to continue.')
+                        self.prompt_action_status('Task was NOT deleted')
                     break
                 elif choice == 'q':
                     break
@@ -111,7 +111,8 @@ class WorkLog:
         Keyword arguments:
         tasks -- a list of Task objects
         """
-        print(' Tasks by Date')
+        self.clear_screen()
+        print('\n Tasks by Date')
         print('{}{}'.format(' ', '-' * 45))
         for i, task in enumerate(self.tasks):
             print(' {} {} - {}'.format(
@@ -138,7 +139,7 @@ class WorkLog:
                     if Task.valid_num(choice):
                         result = ['date', int(choice)]
                 else:
-                    input('Sorry, no items to show. Press ENTER to continue.')
+                    self.prompt_action_status('Sorry, no items to show')
                 break
             elif choice == 't':
                 min_time = input('\n Enter MINimum time (in minutes): ')
@@ -177,6 +178,8 @@ class WorkLog:
         if choice == 'a':
             item = self.create_task()
             self.log.write_to_log(item)
+            self.prompt_action_status('Task Added')
+            self.clear_screen()
 
         elif choice == 'f':
             choices = self.display_find_menu()
@@ -236,6 +239,10 @@ class WorkLog:
             print('Oops! Task was not created.')
 
     @staticmethod
+    def prompt_action_status(prompt='\n'):
+        input('\n {}. Press ENTER to continue.'.format(prompt))
+
+    @staticmethod
     def prompt_menu_choice(choices=[], prompt=' Choice: '):
         """Prompts and validates a choice,
         based-on list of valid choices.
@@ -284,9 +291,9 @@ class WorkLog:
         ))
         return ['a', 'f', 'q']
 
-    @staticmethod
-    def display_find_menu():
+    def display_find_menu(self):
         """Display to terminal, the Find sub-menu"""
+        self.clear_screen()
         print('\n Find By...')
         print('{}{}'.format(' ', '-' * 45))
         print('{}\n{}\n{}\n{}\n{}\n{}\n'.format(
