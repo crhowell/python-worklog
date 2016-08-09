@@ -58,6 +58,8 @@ class WorkLog:
                       if value['min'] <= task.minutes() <= value['max']]
         elif key == 'date':
             result = self.find_by_date(value)
+        elif key == 'range':
+            result = self.find_date_range(value[0], value[1])
 
         return result
 
@@ -73,7 +75,7 @@ class WorkLog:
                 self.tasks[idx].task_name(),
                 self.tasks[idx].minutes(),
                 self.tasks[idx].task_notes(),
-                self.convert_date(self.tasks[idx].task_date())
+                self.convert_display_date(self.tasks[idx].task_date())
             ))
             print('=' * 45)
 
@@ -117,6 +119,21 @@ class WorkLog:
                     break
         else:
             print('There are no tasks to show.')
+
+    def find_date_range(self, date1, date2):
+        d1 = self.convert_to_date(date1)
+        d2 = self.convert_to_date(date2)
+
+        result = []
+        for i, task in enumerate(self.tasks):
+            curr_date = self.convert_to_date(task.task_date())
+            if d2 > d1:
+                if d1 <= curr_date <= d2:
+                    result.append(i)
+            else:
+                if d2 <= curr_date <= d1:
+                    result.append(i)
+        return result
 
     def display_by_date(self):
         """Display to the terminal all tasks by date, enumerated
@@ -164,6 +181,12 @@ class WorkLog:
                         result = ['date', choices[1][index]]
                 else:
                     self.prompt_action_status('Sorry, no items to show')
+                break
+            elif choice == 'r':
+                print(' Date format is: mm/dd/yyyy')
+                date1 = self.prompt_for_date('First Date')
+                date2 = self.prompt_for_date('Second Date')
+                result = ['range', [date1, date2]]
                 break
             elif choice == 't':
                 min_time = input('\n Enter MINimum time (in minutes): ')
@@ -267,6 +290,18 @@ class WorkLog:
             print('Oops! Task was not created.')
 
     @staticmethod
+    def convert_to_date(date=''):
+        if Task.valid_date(date):
+            return datetime.strptime(date, '%m/%d/%Y')
+
+    @staticmethod
+    def prompt_for_date(prmpt='Date'):
+        while True:
+            date = input(' {}: '.format(prmpt))
+            if Task.valid_date(date):
+                return date
+
+    @staticmethod
     def prompt_action_status(prompt='\n'):
         input('\n {}. Press ENTER to continue.'.format(prompt))
 
@@ -326,16 +361,16 @@ class WorkLog:
         print('{}{}'.format(' ', '-' * 45))
         print('{}\n{}\n{}\n{}\n{}\n{}\n'.format(
             ' (L)ist of Existing Dates',
-            ' (R)ange between Dates',
+            ' (R)ange of Dates',
             ' (T)ime spent (range)',
             ' (E)xact Search',
             ' (P)attern RegEx Search',
             ' (Q)uit menu'
         ))
-        return ['l', 't', 'e', 'p', 'q']
+        return ['l', 'r', 't', 'e', 'p', 'q']
 
     @staticmethod
-    def convert_date(date, fmt='%m/%d/%Y'):
+    def convert_display_date(date, fmt='%m/%d/%Y'):
         """Converts a date to settings DATE_DISPLAY_FORMAT
 
         Keyword arguments:
