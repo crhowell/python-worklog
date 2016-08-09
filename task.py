@@ -1,5 +1,4 @@
 from datetime import datetime
-import settings
 
 
 class Task:
@@ -21,7 +20,7 @@ class Task:
         """Prompts user then validates input for task time."""
         while True:
             mins = input(' Time spent on task, in minutes: ')
-            if self.valid_mins(mins):
+            if self.valid_num(mins):
                 return mins
 
     def prompt_name(self):

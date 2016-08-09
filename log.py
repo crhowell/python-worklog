@@ -1,63 +1,32 @@
 import csv
-from datetime import datetime
 import settings
 from task import Task
 
 
 class Log:
-    """A Log is an instance representation of a CSV file.
+    """A Log is the representation of a file.
 
-    The contents of the CSV log file are loaded into an instance
-    of a Log. Any changes to the log with actions such as
-    add, delete, and edit will cause the Log's state to be
-    saved to the file and the instance to be reloaded.
+    An instance of log holds all the methods necessary
+    to interact with a CSV file. This means adding new
+    items, editing items, and deleting items.
     """
-
-    def find_by_date(self, idx):
-        """Returns a list containing 1 task item.
-
-        Keyword arguments:
-        idx -- index choice from enumerated date list
-        """
-        i = idx - 1
-        return [self.tasks[i]]
-
-    def search_by_term(self, term=''):
-        """Returns a list of tasks matching a term.
-
-        Keyword arguments:
-        term -- Search keyword term
-        """
-        result = []
-        if term:
-            for task in self.tasks:
-                if term in task.task_name():
-                    result.append(task)
-                if term in task.task_notes():
-                    if task not in result:
-                        result.append(task)
-        return result
-
-    def find_task(self, key='', value=''):
-        """Returns result of given key action.
-
-        Keyword arguments:
-        key -- string of how value should be handled.
-        value -- search value of what we are looking for.
-
-        """
-        result = []
-        if key == 'search':
-            result = self.search_by_term(value)
-        elif key == 'regex':
-            result = []
-        elif key == 'mins':
-            result = [task for task in self.tasks
-                      if value['min'] <= task.minutes() <= value['max']]
-        elif key == 'date':
-            result = self.find_by_date(value)
-
-        return result
+    def rewrite_the_log(self, items=[]):
+        try:
+            with open(self.file_path, 'w') as file:
+                writer = csv.DictWriter(file, fieldnames=self.fields)
+                writer.writeheader()
+                for item in items:
+                    row = {
+                        'name': item.name,
+                        'mins': item.mins,
+                        'notes': item.notes,
+                        'date': item.date
+                    }
+                    writer.writerow(row)
+            return True
+        except ValueError:
+            print(' Could not rewrite the log file.')
+            return False
 
     def write_to_log(self, items=[]):
         """Appends to file, list of items.
@@ -67,7 +36,7 @@ class Log:
         """
         try:
             with open(self.file_path, 'a') as file:
-                writer = csv.DictWriter(file, fieldnames=Task.FIELDS)
+                writer = csv.DictWriter(file, fieldnames=self.fields)
                 for item in items:
                     writer.writerow(item)
             return True
@@ -80,7 +49,7 @@ class Log:
         """Creates a new CSV file on the local drive."""
         try:
             with open(self.file_path, 'w') as file:
-                writer = csv.DictWriter(file, fieldnames=Task.FIELDS)
+                writer = csv.DictWriter(file, fieldnames=self.fields)
                 writer.writeheader()
                 if self.entries:
                     for entry in self.entries:
@@ -108,10 +77,6 @@ class Log:
         finally:
             return entries
 
-    def all_tasks(self):
-        """Returns a list of all tasks"""
-        return self.tasks
-
     @staticmethod
     def get_file_path():
         """Returns settings.py FILE_PATH, if exists."""
@@ -120,6 +85,6 @@ class Log:
         else:
             return False
 
-    def __init__(self):
+    def __init__(self, fields=[]):
+        self.fields = fields
         self.file_path = self.get_file_path()
-        self.tasks = self.open_file()
