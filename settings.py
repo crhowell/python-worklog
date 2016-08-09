@@ -21,7 +21,7 @@ import os
 DATE_DISPLAY_FORMAT = '%Y %b %d'
 
 # Enter your Company's name
-COMPANY_NAME = 'Some Company'
+COMPANY_NAME = 'MY COMPANY'
 
 # File Location Settings
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

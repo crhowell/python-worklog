@@ -1,19 +1,31 @@
 from datetime import datetime
 from log import Log
-from task import Task
 import re
 import settings
 import sys
+from task import Task
+
 
 class WorkLog:
+    """A WorkLog interacts between a Task and a Log.
 
-    def find_by_date(self, idx):
+    It contains all the methods for a user to interact
+    with a Log. This includes menus, user input for prompts,
+    displaying single or navigating a list of paginated tasks.
+    """
+
+    def find_by_date(self, date=''):
         """Returns a list of 1 Task index.
 
         Keyword arguments:
         idx -- Choice from date list
         """
-        return [idx - 1]
+        result = []
+        if date:
+            for i, task in enumerate(self.tasks):
+                if date == task.task_date():
+                    result.append(i)
+        return result
 
     def find_by_pattern(self, pattern=''):
         """Returns a list of tasks that match the pattern.
@@ -75,6 +87,7 @@ class WorkLog:
         if indices:
             i = 0
             while True:
+                self.clear_screen()
                 page_dir = self.allowable_page_dir(i, len(indices))
                 choices = [key for key in page_dir]
                 self.display_task_count(i + 1, len(indices))
@@ -112,15 +125,25 @@ class WorkLog:
         tasks -- a list of Task objects
         """
         self.clear_screen()
+        group = self.group_dates()
         print('\n Tasks by Date')
         print('{}{}'.format(' ', '-' * 45))
-        for i, task in enumerate(self.tasks):
-            print(' {} {} - {}'.format(
-                i + 1,
-                task.task_date(),
-                task.task_name()
+        for i in range(len(group[0])):
+            print(' {} {}'.format(
+                group[0][i],
+                group[1][i]
             ))
-        return [str(i + 1) for i in range(len(self.tasks))]
+
+        return group
+
+    def group_dates(self):
+        """Groups tasks into a dict by numbered dates."""
+        group = [[], []]
+        for i, task in enumerate(self.tasks):
+            if task.task_date() not in group[1]:
+                group[0].append(str(i+1))
+                group[1].append(task.task_date())
+        return group
 
     def prompt_find_choice(self, choice=''):
         """Prompt user for input,
@@ -135,9 +158,10 @@ class WorkLog:
                 choices = self.display_by_date()
                 if choices:
                     print('\n Choose a date by entering the number(left) of the date.')
-                    choice = self.prompt_menu_choice(choices)
+                    choice = self.prompt_menu_choice(choices[0])
                     if Task.valid_num(choice):
-                        result = ['date', int(choice)]
+                        index = int(choice) - 1
+                        result = ['date', choices[1][index]]
                 else:
                     self.prompt_action_status('Sorry, no items to show')
                 break
@@ -187,7 +211,10 @@ class WorkLog:
             search = self.prompt_find_choice(choice)
             if search is not None:
                 result = self.find_task(search[0], search[1])
-                self.display_paginated(result)
+                if result:
+                    self.display_paginated(result)
+                else:
+                    self.prompt_action_status('No results found')
 
         elif choice == 'q':
             self.clear_screen()
@@ -224,6 +251,7 @@ class WorkLog:
         task -- a Task object
         """
         if self.tasks[idx] is not None:
+            print('\n * Leave it blank to continue without changing value. *')
             self.tasks[idx].update_all()
 
     def create_task(self):
@@ -351,8 +379,3 @@ class WorkLog:
     def __init__(self):
         self.log = Log(fields=Task.FIELDS)
         self.tasks = self.log.open_file()
-
-
-if __name__ == '__main__':
-    worklog = WorkLog()
-    worklog.main()
